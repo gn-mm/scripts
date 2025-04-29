@@ -7,8 +7,7 @@ $gitInstallDir = "$env:LOCALAPPDATA\Programs\Git"
 $gitBin = "$gitInstallDir\cmd"
 
 # --- Install Python ---
-$pythonExe = "python.exe"
-if (-not (Get-Command $pythonExe -ErrorAction SilentlyContinue)) {
+if (-not (Get-Command python.exe -ErrorAction SilentlyContinue)) {
     Write-Output "Python not found. Installing..."
 
     $pythonUrl = "https://www.python.org/ftp/python/3.12.3/python-3.12.3-amd64.exe"
@@ -21,7 +20,7 @@ if (-not (Get-Command $pythonExe -ErrorAction SilentlyContinue)) {
                   -ArgumentList "/quiet InstallAllUsers=0 PrependPath=1 Include_test=0" `
                   -Wait
 
-    if (Get-Command $pythonExe -ErrorAction SilentlyContinue) {
+    if (Get-Command python.exe -ErrorAction SilentlyContinue) {
         Write-Output "Python installed successfully."
     } else {
         Write-Warning "Python installation may have failed."
@@ -41,7 +40,7 @@ if (-not (Test-Path "$gitBin\git.exe")) {
     }
 
     # Write the .ini file for silent install
-    @"
+    $gitIniContent = @"
 [Setup]
 Lang=default
 Dir=$gitInstallDir
@@ -57,12 +56,13 @@ SSHOption=OpenSSH
 CURLOption=WinSSL
 GitPullBehaviorOption=Merge
 UseCredentialManager=Enabled
-"@ | Out-File -Encoding ASCII $gitIni
+"@
+
+    $gitIniContent | Out-File -Encoding ASCII -FilePath $gitIni
 
     # Run installer
-    Start-Process -FilePath $gitInstaller `
-                  -ArgumentList "/VERYSILENT", "/NORESTART", "/LOADINF=`"$gitIni`"" `
-                  -Wait
+    $gitArgs = "/VERYSILENT", "/NORESTART", "/LOADINF=`"$gitIni`""
+    Start-Process -FilePath $gitInstaller -ArgumentList $gitArgs -Wait
 
     if (Test-Path "$gitBin\git.exe") {
         Write-Output "Git installed successfully."
