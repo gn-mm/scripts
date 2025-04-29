@@ -1,13 +1,13 @@
-# Define download paths
+# Define paths
 $downloadFolder = "$env:USERPROFILE\Downloads"
 $pythonInstaller = "$downloadFolder\python-installer.exe"
-$gitInstaller = "$downloadFolder\git-installer.exe"
-$gitIni = "$downloadFolder\git_options.ini"
-$gitInstallDir = "$env:LOCALAPPDATA\Programs\Git"
-$gitBin = "$gitInstallDir\cmd"
+$gitArchive = "$downloadFolder\PortableGit.7z.exe"
+$gitExtractDir = "$env:LOCALAPPDATA\Programs\PortableGit"
+$gitBin = "$gitExtractDir\cmd"
 
 # --- Install Python ---
-if (-not (Get-Command python.exe -ErrorAction SilentlyContinue)) {
+$pythonRealCheck = "$env:LOCALAPPDATA\Programs\Python\Python312\python.exe"
+if (-not (Test-Path $pythonRealCheck)) {
     Write-Output "Python not found. Installing..."
 
     $pythonUrl = "https://www.python.org/ftp/python/3.12.3/python-3.12.3-amd64.exe"
@@ -20,7 +20,7 @@ if (-not (Get-Command python.exe -ErrorAction SilentlyContinue)) {
                   -ArgumentList "/quiet InstallAllUsers=0 PrependPath=1 Include_test=0" `
                   -Wait
 
-    if (Get-Command python.exe -ErrorAction SilentlyContinue) {
+    if (Test-Path $pythonRealCheck) {
         Write-Output "Python installed successfully."
     } else {
         Write-Warning "Python installation may have failed."
@@ -29,53 +29,35 @@ if (-not (Get-Command python.exe -ErrorAction SilentlyContinue)) {
     Write-Output "Python is already installed."
 }
 
-# --- Install Git ---
+# --- Install Git (Portable) ---
 if (-not (Test-Path "$gitBin\git.exe")) {
-    Write-Output "Git not found. Installing..."
+    Write-Output "Portable Git not found. Installing..."
 
-    $gitUrl = "https://github.com/git-for-windows/git/releases/download/v2.49.0.windows.1/Git-2.49.0-64-bit.exe"
+    $gitUrl = "https://github.com/git-for-windows/git/releases/download/v2.49.0.windows.1/PortableGit-2.49.0-64-bit.7z.exe"
 
-    if (-not (Test-Path $gitInstaller)) {
-        Invoke-WebRequest -Uri $gitUrl -OutFile $gitInstaller
+    if (-not (Test-Path $gitArchive)) {
+        Invoke-WebRequest -Uri $gitUrl -OutFile $gitArchive
     }
 
-    # Write the .ini file for silent install
-    $gitIniContent = @"
-[Setup]
-Lang=default
-Dir=$gitInstallDir
-Group=Git
-NoIcons=1
-SetupType=default
-Components=gitlfs,assoc,assoc_sh,windowsterminal
-Tasks=
-CustomEditorPath=
-DefaultBranchOption=main
-PathOption=Cmd
-SSHOption=OpenSSH
-CURLOption=WinSSL
-GitPullBehaviorOption=Merge
-UseCredentialManager=Enabled
-"@
+    if (-not (Test-Path $gitExtractDir)) {
+        New-Item -ItemType Directory -Path $gitExtractDir | Out-Null
+    }
 
-    $gitIniContent | Out-File -Encoding ASCII -FilePath $gitIni
-
-    # Run installer
-    $gitArgs = "/VERYSILENT", "/NORESTART", "/LOADINF=`"$gitIni`""
-    Start-Process -FilePath $gitInstaller -ArgumentList $gitArgs -Wait
+    Start-Process -FilePath $gitArchive `
+                  -ArgumentList "-y -o`"$gitExtractDir`"" `
+                  -Wait
 
     if (Test-Path "$gitBin\git.exe") {
-        Write-Output "Git installed successfully."
-    } else {
-        Write-Warning "Git installation may have failed."
-    }
+        Write-Output "Portable Git extracted successfully."
 
-    # Add Git to PATH if not already present
-    $currentUserPath = [Environment]::GetEnvironmentVariable("PATH", "User")
-    if ($currentUserPath -notlike "*$gitBin*") {
-        [Environment]::SetEnvironmentVariable("PATH", "$currentUserPath;$gitBin", "User")
-        Write-Output "Git added to user PATH. You may need to restart PowerShell."
+        $currentUserPath = [Environment]::GetEnvironmentVariable("PATH", "User")
+        if ($currentUserPath -notlike "*$gitBin*") {
+            [Environment]::SetEnvironmentVariable("PATH", "$currentUserPath;$gitBin", "User")
+            Write-Output "Git added to user PATH. You may need to restart PowerShell."
+        }
+    } else {
+        Write-Warning "Portable Git extraction may have failed."
     }
 } else {
-    Write-Output "Git is already installed."
+    Write-Output "Portable Git is already installed."
 }
