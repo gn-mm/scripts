@@ -22,12 +22,12 @@ if (-not (Get-Command $pythonExe -ErrorAction SilentlyContinue)) {
                   -Wait
 
     if (Get-Command $pythonExe -ErrorAction SilentlyContinue) {
-        Write-Output "✅ Python installed successfully."
+        Write-Output "Python installed successfully."
     } else {
-        Write-Warning "⚠️ Python installation may have failed."
+        Write-Warning "Python installation may have failed."
     }
 } else {
-    Write-Output "✔️ Python is already installed."
+    Write-Output "Python is already installed."
 }
 
 # --- Install Git ---
@@ -65,17 +65,17 @@ UseCredentialManager=Enabled
                   -Wait
 
     if (Test-Path "$gitBin\git.exe") {
-        Write-Output "✅ Git installed successfully."
+        Write-Output "Git installed successfully."
     } else {
-        Write-Warning "⚠️ Git installation may have failed."
+        Write-Warning "Git installation may have failed."
     }
 
     # Add Git to PATH if not already present
     $currentUserPath = [Environment]::GetEnvironmentVariable("PATH", "User")
     if ($currentUserPath -notlike "*$gitBin*") {
         [Environment]::SetEnvironmentVariable("PATH", "$currentUserPath;$gitBin", "User")
-        Write-Output "🔧 Git added to user PATH. You may need to restart PowerShell."
+        Write-Output "Git added to user PATH. You may need to restart PowerShell."
     }
 } else {
-    Write-Output "✔️ Git is already installed."
+    Write-Output "Git is already installed."
 }
