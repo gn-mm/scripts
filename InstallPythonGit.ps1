@@ -8,7 +8,7 @@ $gitBin = "$gitExtractDir\cmd"
 # --- Instalação do Python ---
 $pythonRealCheck = "$env:LOCALAPPDATA\Programs\Python\Python312\python.exe"
 if (-not (Test-Path $pythonRealCheck)) {
-    Write-Output "Python não encontrado. Iniciando instalação..."
+    Write-Output "Python nao encontrado. Iniciando instalacao..."
 
     $pythonUrl = "https://www.python.org/ftp/python/3.12.3/python-3.12.3-amd64.exe"
 
@@ -25,15 +25,15 @@ if (-not (Test-Path $pythonRealCheck)) {
     if (Test-Path $pythonRealCheck) {
         Write-Output "Python instalado com sucesso."
     } else {
-        Write-Warning "A instalação do Python pode ter falhado."
+        Write-Warning "A instalacao do Python pode ter falhado."
     }
 } else {
-    Write-Output "Python já está instalado."
+    Write-Output "Python ja esta instalado."
 }
 
 # --- Instalação do Git (versão portátil) ---
 if (-not (Test-Path "$gitBin\git.exe")) {
-    Write-Output "Portable Git não encontrado. Iniciando instalação..."
+    Write-Output "Portable Git nao encontrado. Iniciando instalacao..."
 
     $gitUrl = "https://github.com/git-for-windows/git/releases/download/v2.49.0.windows.1/PortableGit-2.49.0-64-bit.7z.exe"
 
@@ -52,16 +52,16 @@ if (-not (Test-Path "$gitBin\git.exe")) {
                   -Wait
 
     if (Test-Path "$gitBin\git.exe") {
-        Write-Output "Portable Git extraído com sucesso."
+        Write-Output "Portable Git extraido com sucesso."
 
         $currentUserPath = [Environment]::GetEnvironmentVariable("PATH", "User")
         if ($currentUserPath -notlike "*$gitBin*") {
             [Environment]::SetEnvironmentVariable("PATH", "$currentUserPath;$gitBin", "User")
-            Write-Output "Git adicionado à variável PATH do usuário. É necessário reiniciar o PowerShell para aplicar as mudanças."
+            Write-Output "Git adicionado a variavel PATH do usuario. Eh necessario reiniciar o PowerShell para aplicar as mudancas."
         }
     } else {
-        Write-Warning "A extração do Portable Git pode ter falhado."
+        Write-Warning "A extracao do Portable Git pode ter falhado."
     }
 } else {
-    Write-Output "Portable Git já está instalado."
+    Write-Output "Portable Git ja esta instalado."
 }
